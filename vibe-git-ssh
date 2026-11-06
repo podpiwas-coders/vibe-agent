@@ -1,0 +1,12 @@
+#!/bin/sh
+# GIT_SSH_COMMAND for the agent: uses the deploy key that vibe-control puts into
+# $VIBE_GIT_SSH_KEY, and trusts only GitHub's published host keys.
+set -eu
+key="${HOME}/.ssh/vibe_deploy_key"
+if [ -n "${VIBE_GIT_SSH_KEY:-}" ]; then
+  umask 077
+  mkdir -p "${HOME}/.ssh"
+  printf '%s\n' "$VIBE_GIT_SSH_KEY" > "$key"
+fi
+exec ssh -i "$key" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+  -o UserKnownHostsFile=/etc/ssh/github_known_hosts "$@"
